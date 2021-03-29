@@ -1,0 +1,10 @@
+{
+  "name": "crud-example-app-ts-boostr",
+  "version": "1.0.0",
+  "private": true,
+  "prettier": "@boostr/prettierrc",
+  "devDependencies": {
+    "@boostr/prettierrc": "^1.0.0",
+    "boostr": "^1.0.344"
+  }
+}
