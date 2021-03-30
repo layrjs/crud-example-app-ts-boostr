@@ -1,7 +1,7 @@
 import {consume} from '@layr/component';
 import {Routable, route} from '@layr/routable';
 import React, {useMemo} from 'react';
-import {view, useAsyncMemo, useAsyncCallback} from '@layr/react-integration';
+import {view, useAsyncCall, useAsyncMemo, useAsyncCallback} from '@layr/react-integration';
 
 import type {Movie as BackendMovie} from '../../../backend/src/components/movie';
 import type {Application} from './application';
@@ -21,7 +21,100 @@ export const getMovie = (Base: typeof BackendMovie) => {
       );
     }
 
-    // TODO: Move this after EditPage
+    @route('/movies/:id') @view() HomePage() {
+      const [isLoading, loadingError] = useAsyncCall(async () => {
+        await this.load({title: true, year: true, country: true});
+      });
+
+      const [handleDelete, isDeleting, deletingError] = useAsyncCallback(async () => {
+        await this.delete();
+        this.constructor.Application.HomePage.navigate();
+      });
+
+      if (isLoading) {
+        return null;
+      }
+
+      if (loadingError) {
+        return <div>Sorry, something went wrong while loading the movie.</div>;
+      }
+
+      return (
+        <this.constructor.LayoutView>
+          {deletingError && <p>Sorry, something went wrong while deleting the movie.</p>}
+          <table>
+            <tbody>
+              <tr>
+                <td>Title:</td>
+                <td>{this.title}</td>
+              </tr>
+              <tr>
+                <td>Year:</td>
+                <td>{this.year}</td>
+              </tr>
+              <tr>
+                <td>Country:</td>
+                <td>{this.country}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            <button
+              onClick={() => {
+                this.EditPage.navigate();
+              }}
+              disabled={isDeleting}
+            >
+              Edit
+            </button>
+            &nbsp;
+            <button onClick={handleDelete} disabled={isDeleting}>
+              Delete
+            </button>
+          </p>
+          <p>
+            ‹{' '}
+            <this.constructor.Application.HomePage.Link>
+              Back
+            </this.constructor.Application.HomePage.Link>
+          </p>
+        </this.constructor.LayoutView>
+      );
+    }
+
+    @route('/movies/:id/edit') @view() EditPage() {
+      // TODO: DRY
+      const [isLoading, loadingError] = useAsyncCall(async () => {
+        await this.load({title: true, year: true, country: true});
+      });
+
+      const forkedMovie = useMemo(() => this.fork(), []);
+
+      const [handleSave, , savingError] = useAsyncCallback(async () => {
+        await forkedMovie.save();
+        this.merge(forkedMovie);
+        this.HomePage.navigate();
+      });
+
+      if (isLoading) {
+        return null;
+      }
+
+      if (loadingError) {
+        return <div>Sorry, something went wrong while loading the movie.</div>;
+      }
+
+      return (
+        <this.constructor.LayoutView>
+          {savingError && <p>Sorry, something went wrong while saving the movie.</p>}
+          <forkedMovie.Form onSubmit={handleSave} />
+          <p>
+            ‹ <this.HomePage.Link>Back</this.HomePage.Link>
+          </p>
+        </this.constructor.LayoutView>
+      );
+    }
+
     @route('/movies/add') @view() static AddPage() {
       const movie = useMemo(() => new this(), []);
 
@@ -36,97 +129,6 @@ export const getMovie = (Base: typeof BackendMovie) => {
           <movie.Form onSubmit={handleSave} />
           <p>
             ‹ <this.Application.HomePage.Link>Back</this.Application.HomePage.Link>
-          </p>
-        </this.LayoutView>
-      );
-    }
-
-    @route('/movies/:id') @view() static HomePage({id}: {id: string}) {
-      const [movie, isLoading, loadingError] = useAsyncMemo(async () => {
-        return await this.get(id, {title: true, year: true, country: true});
-      }, [id]);
-
-      const [handleDelete, isDeleting, deletingError] = useAsyncCallback(async () => {
-        await movie!.delete();
-        this.Application.HomePage.navigate();
-      }, [movie]);
-
-      if (isLoading) {
-        return null;
-      }
-
-      if (loadingError || movie === undefined) {
-        return <div>Sorry, something went wrong while loading the movie.</div>;
-      }
-
-      return (
-        <this.LayoutView>
-          {deletingError && <p>Sorry, something went wrong while deleting the movie.</p>}
-          <table>
-            <tbody>
-              <tr>
-                <td>Title:</td>
-                <td>{movie.title}</td>
-              </tr>
-              <tr>
-                <td>Year:</td>
-                <td>{movie.year}</td>
-              </tr>
-              <tr>
-                <td>Country:</td>
-                <td>{movie.country}</td>
-              </tr>
-            </tbody>
-          </table>
-          <p>
-            <button
-              onClick={() => {
-                this.EditPage.navigate(movie);
-              }}
-              disabled={isDeleting}
-            >
-              Edit
-            </button>
-            &nbsp;
-            <button onClick={handleDelete} disabled={isDeleting}>
-              Delete
-            </button>
-          </p>
-          <p>
-            ‹ <this.Application.HomePage.Link>Back</this.Application.HomePage.Link>
-          </p>
-        </this.LayoutView>
-      );
-    }
-
-    @route('/movies/:id/edit') @view() static EditPage({id}: {id: string}) {
-      // TODO: DRY
-      const [movie, isLoading, loadingError] = useAsyncMemo(async () => {
-        return await this.get(id, {title: true, year: true, country: true});
-      }, [id]);
-
-      const forkedMovie = useMemo(() => movie?.fork(), [movie]);
-
-      const [handleSave, , savingError] = useAsyncCallback(async () => {
-        await forkedMovie!.save();
-        movie!.merge(forkedMovie!);
-        this.HomePage.navigate(movie!);
-      }, [movie, forkedMovie]);
-
-      if (isLoading) {
-        return null;
-      }
-
-      if (loadingError || forkedMovie === undefined) {
-        return <div>Sorry, something went wrong while loading the movie.</div>;
-      }
-
-      return (
-        <this.LayoutView>
-          {savingError && <p>Sorry, something went wrong while saving the movie.</p>}
-          <forkedMovie.Form onSubmit={handleSave} />
-          <p>
-            ‹ <this.HomePage.Link params={movie}>Back</this.HomePage.Link>
           </p>
         </this.LayoutView>
       );
@@ -150,7 +152,7 @@ export const getMovie = (Base: typeof BackendMovie) => {
           <ul>
             {movies!.map((movie) => (
               <li key={movie.id}>
-                <this.HomePage.Link params={movie}>{movie.title}</this.HomePage.Link>
+                <movie.HomePage.Link>{movie.title}</movie.HomePage.Link>
                 {movie.year !== undefined ? ` (${movie.year})` : ''}
               </li>
             ))}
