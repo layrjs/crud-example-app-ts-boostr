@@ -1,47 +1,44 @@
 import {consume} from '@layr/component';
-import {Routable, route} from '@layr/routable';
-import React, {useMemo} from 'react';
-import {view, useAsyncCall, useAsyncMemo, useAsyncCallback} from '@layr/react-integration';
+import {Routable, route, wrapper} from '@layr/routable';
+import React, {Fragment, useMemo} from 'react';
+import {view, useData, useAction} from '@layr/react-integration';
 
 import type {Movie as BackendMovie} from '../../../backend/src/components/movie';
 import type {Application} from './application';
 
-export const getMovie = (Base: typeof BackendMovie) => {
+export const createMovieComponent = (Base: typeof BackendMovie) => {
   class Movie extends Routable(Base) {
     ['constructor']!: typeof Movie;
 
     @consume() static Application: typeof Application;
 
-    @view() static LayoutView({children}: {children?: React.ReactNode}) {
-      return (
-        <this.Application.LayoutView>
-          <h2>Movie</h2>
-          {children}
-        </this.Application.LayoutView>
+    @wrapper('[/]movies/:id') @view() ItemLayout({children}: {children: () => any}) {
+      return useData(
+        async () => {
+          await this.load({title: true, year: true, country: true});
+        },
+
+        () => (
+          <>
+            <h2>Movie</h2>
+            {children()}
+          </>
+        ),
+
+        [], // Getter deps
+
+        [children] // Renderer deps
       );
     }
 
-    @route('/movies/:id') @view() HomePage() {
-      const [isLoading, loadingError] = useAsyncCall(async () => {
-        await this.load({title: true, year: true, country: true});
-      });
-
-      const [handleDelete, isDeleting, deletingError] = useAsyncCallback(async () => {
+    @route('[/movies/:id]') @view() HomePage() {
+      const deleteMovie = useAction(async () => {
         await this.delete();
         this.constructor.Application.HomePage.navigate();
       });
 
-      if (isLoading) {
-        return null;
-      }
-
-      if (loadingError) {
-        return <div>Sorry, something went wrong while loading the movie.</div>;
-      }
-
       return (
-        <this.constructor.LayoutView>
-          {deletingError && <p>Sorry, something went wrong while deleting the movie.</p>}
+        <>
           <table>
             <tbody>
               <tr>
@@ -63,14 +60,11 @@ export const getMovie = (Base: typeof BackendMovie) => {
               onClick={() => {
                 this.EditPage.navigate();
               }}
-              disabled={isDeleting}
             >
               Edit
             </button>
             &nbsp;
-            <button onClick={handleDelete} disabled={isDeleting}>
-              Delete
-            </button>
+            <button onClick={deleteMovie}>Delete</button>
           </p>
           <p>
             ‹{' '}
@@ -78,110 +72,86 @@ export const getMovie = (Base: typeof BackendMovie) => {
               Back
             </this.constructor.Application.HomePage.Link>
           </p>
-        </this.constructor.LayoutView>
+        </>
       );
     }
 
-    @route('/movies/:id/edit') @view() EditPage() {
-      // TODO: DRY
-      const [isLoading, loadingError] = useAsyncCall(async () => {
-        await this.load({title: true, year: true, country: true});
-      });
-
+    @route('[/movies/:id]/edit') @view() EditPage() {
       const forkedMovie = useMemo(() => this.fork(), []);
 
-      const [handleSave, , savingError] = useAsyncCallback(async () => {
+      const save = useAction(async () => {
         await forkedMovie.save();
         this.merge(forkedMovie);
         this.HomePage.navigate();
       });
 
-      if (isLoading) {
-        return null;
-      }
-
-      if (loadingError) {
-        return <div>Sorry, something went wrong while loading the movie.</div>;
-      }
-
       return (
-        <this.constructor.LayoutView>
-          {savingError && <p>Sorry, something went wrong while saving the movie.</p>}
-          <forkedMovie.Form onSubmit={handleSave} />
+        <>
+          <forkedMovie.Form onSubmit={save} />
           <p>
             ‹ <this.HomePage.Link>Back</this.HomePage.Link>
           </p>
-        </this.constructor.LayoutView>
+        </>
       );
     }
 
-    @route('/movies/add') @view() static AddPage() {
+    @route('[/]movies/add') @view() static AddPage() {
       const movie = useMemo(() => new this(), []);
 
-      const [handleSave, , savingError] = useAsyncCallback(async () => {
+      const save = useAction(async () => {
         await movie.save();
         this.Application.HomePage.navigate();
-      }, [movie]);
+      });
 
       return (
-        <this.LayoutView>
-          {savingError && <p>Sorry, something went wrong while saving the movie.</p>}
-          <movie.Form onSubmit={handleSave} />
+        <>
+          <h2>Add movie</h2>
+          <movie.Form onSubmit={save} />
           <p>
             ‹ <this.Application.HomePage.Link>Back</this.Application.HomePage.Link>
           </p>
-        </this.LayoutView>
+        </>
       );
     }
 
     @view() static ListView() {
-      const [movies, isLoading, loadingError] = useAsyncMemo(async () => {
-        return await this.find({}, {title: true, year: true}, {sort: {year: 'desc', title: 'asc'}});
-      }, []);
+      return useData(
+        async () =>
+          await this.find({}, {title: true, year: true}, {sort: {year: 'desc', title: 'asc'}}),
 
-      if (isLoading) {
-        return null;
-      }
+        (movies) => (
+          <>
+            <ul>
+              {movies.map((movie) => (
+                <li key={movie.id}>
+                  <movie.HomePage.Link>{movie.title}</movie.HomePage.Link>
+                  {movie.year !== undefined ? ` (${movie.year})` : ''}
+                </li>
+              ))}
+            </ul>
 
-      if (loadingError) {
-        return <div>Sorry, something went wrong while loading the movies.</div>;
-      }
-
-      return (
-        <div>
-          <ul>
-            {movies!.map((movie) => (
-              <li key={movie.id}>
-                <movie.HomePage.Link>{movie.title}</movie.HomePage.Link>
-                {movie.year !== undefined ? ` (${movie.year})` : ''}
-              </li>
-            ))}
-          </ul>
-
-          <p>
-            <button
-              onClick={() => {
-                this.AddPage.navigate();
-              }}
-            >
-              New
-            </button>
-          </p>
-        </div>
+            <p>
+              <button
+                onClick={() => {
+                  this.AddPage.navigate();
+                }}
+              >
+                New
+              </button>
+            </p>
+          </>
+        )
       );
     }
 
     @view() Form({onSubmit}: {onSubmit: Function}) {
-      const [handleSubmit, isSubmitting] = useAsyncCallback(
-        async (event) => {
-          event.preventDefault();
-          await onSubmit();
-        },
-        [onSubmit]
-      );
-
       return (
-        <form onSubmit={handleSubmit}>
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            onSubmit();
+          }}
+        >
           <table>
             <tbody>
               <tr>
@@ -221,9 +191,7 @@ export const getMovie = (Base: typeof BackendMovie) => {
             </tbody>
           </table>
           <p>
-            <button type="submit" disabled={isSubmitting}>
-              Save
-            </button>
+            <button type="submit">Save</button>
           </p>
         </form>
       );
@@ -233,6 +201,6 @@ export const getMovie = (Base: typeof BackendMovie) => {
   return Movie;
 };
 
-export declare const Movie: ReturnType<typeof getMovie>;
+export declare const Movie: ReturnType<typeof createMovieComponent>;
 
 export type Movie = InstanceType<typeof Movie>;
