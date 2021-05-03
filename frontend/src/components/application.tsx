@@ -15,7 +15,9 @@ export const createApplicationComponent = (Base: typeof BackendApplication) => {
     @wrapper('/') @view() static MainLayout({children}: {children: () => any}) {
       return (
         <>
-          <h1>CRUD example app</h1>
+          <this.HomePage.Link>
+            <h1>CRUD example app</h1>
+          </this.HomePage.Link>
           {children()}
         </>
       );
@@ -26,6 +28,15 @@ export const createApplicationComponent = (Base: typeof BackendApplication) => {
         <>
           <h2>Movies</h2>
           <this.Movie.ListView />
+        </>
+      );
+    }
+
+    @route('[/]*') @view() static NotFoundPage() {
+      return (
+        <>
+          <h2>Route not found</h2>
+          <p>Sorry, there is nothing here.</p>
         </>
       );
     }
