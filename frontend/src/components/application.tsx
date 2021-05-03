@@ -1,7 +1,7 @@
 import {provide} from '@layr/component';
-import {Routable, route, wrapper} from '@layr/routable';
+import {Routable} from '@layr/routable';
 import React, {Fragment} from 'react';
-import {view} from '@layr/react-integration';
+import {layout, page} from '@layr/react-integration';
 
 import type {Application as BackendApplication} from '../../../backend/src/components/application';
 import {createMovieComponent} from './movie';
@@ -12,7 +12,7 @@ export const createApplicationComponent = (Base: typeof BackendApplication) => {
 
     @provide() static Movie = createMovieComponent(Base.Movie);
 
-    @wrapper('/') @view() static MainLayout({children}: {children: () => any}) {
+    @layout('/') static MainLayout({children}: {children: () => any}) {
       return (
         <>
           <this.HomePage.Link>
@@ -23,7 +23,7 @@ export const createApplicationComponent = (Base: typeof BackendApplication) => {
       );
     }
 
-    @route('[/]') @view() static HomePage() {
+    @page('[/]') static HomePage() {
       return (
         <>
           <h2>Movies</h2>
@@ -32,7 +32,7 @@ export const createApplicationComponent = (Base: typeof BackendApplication) => {
       );
     }
 
-    @route('[/]*') @view() static NotFoundPage() {
+    @page('[/]*') static NotFoundPage() {
       return (
         <>
           <h2>Route not found</h2>

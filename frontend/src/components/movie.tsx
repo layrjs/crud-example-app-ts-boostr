@@ -1,7 +1,7 @@
 import {consume} from '@layr/component';
-import {Routable, route, wrapper} from '@layr/routable';
+import {Routable} from '@layr/routable';
 import React, {Fragment, useMemo} from 'react';
-import {view, useData, useAction} from '@layr/react-integration';
+import {layout, page, view, useData, useAction} from '@layr/react-integration';
 
 import type {Movie as BackendMovie} from '../../../backend/src/components/movie';
 import type {Application} from './application';
@@ -12,7 +12,7 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
 
     @consume() static Application: typeof Application;
 
-    @wrapper('[/]movies/:id') @view() ItemLayout({children}: {children: () => any}) {
+    @layout('[/]movies/:id') ItemLayout({children}: {children: () => any}) {
       return useData(
         async () => {
           await this.load({title: true, year: true, country: true});
@@ -31,7 +31,7 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
       );
     }
 
-    @route('[/movies/:id]') @view() HomePage() {
+    @page('[/movies/:id]') HomePage() {
       const deleteMovie = useAction(async () => {
         await this.delete();
         this.constructor.Application.HomePage.navigate();
@@ -76,7 +76,7 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
       );
     }
 
-    @route('[/movies/:id]/edit') @view() EditPage() {
+    @page('[/movies/:id]/edit') EditPage() {
       const forkedMovie = useMemo(() => this.fork(), []);
 
       const save = useAction(async () => {
@@ -95,7 +95,7 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
       );
     }
 
-    @route('[/]movies/add') @view() static AddPage() {
+    @page('[/]movies/add') static AddPage() {
       const movie = useMemo(() => new this(), []);
 
       const save = useAction(async () => {
