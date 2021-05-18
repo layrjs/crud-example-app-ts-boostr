@@ -4,12 +4,12 @@
   "private": true,
   "main": "./src/index.ts",
   "dependencies": {
-    "@layr/component": "^1.1.12",
-    "@layr/mongodb-store": "^1.1.39",
-    "@layr/storable": "^1.1.21"
+    "@layr/component": "^1.1.14",
+    "@layr/mongodb-store": "^1.1.43",
+    "@layr/storable": "^1.1.24"
   },
   "devDependencies": {
     "@boostr/tsconfig": "^1.0.0",
-    "@types/node": "^14.14.43"
+    "@types/node": "^14.14.45"
   }
 }
