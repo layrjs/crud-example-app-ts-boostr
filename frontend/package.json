@@ -6,8 +6,8 @@
   "dependencies": {
     "@layr/component": "^1.1.14",
     "@layr/component-http-client": "^2.0.5",
-    "@layr/react-integration": "^2.0.42",
-    "@layr/routable": "^2.0.31",
+    "@layr/react-integration": "^2.0.45",
+    "@layr/routable": "^2.0.32",
     "@layr/storable": "^1.1.24",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"

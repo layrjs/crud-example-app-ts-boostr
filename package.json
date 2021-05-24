@@ -5,6 +5,6 @@
   "prettier": "@boostr/prettierrc",
   "devDependencies": {
     "@boostr/prettierrc": "^1.0.0",
-    "boostr": "^1.0.546"
+    "boostr": "^1.0.559"
   }
 }

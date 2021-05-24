@@ -5,7 +5,7 @@
   "main": "./src/index.ts",
   "dependencies": {
     "@layr/component": "^1.1.14",
-    "@layr/mongodb-store": "^1.1.43",
+    "@layr/mongodb-store": "^1.1.44",
     "@layr/storable": "^1.1.24"
   },
   "devDependencies": {
