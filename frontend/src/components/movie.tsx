@@ -31,7 +31,7 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
       );
     }
 
-    @page('[/movies/:id]') HomePage() {
+    @page('[/movies/:id]') ItemPage() {
       const deleteMovie = useAction(async () => {
         await this.delete();
         this.constructor.Application.HomePage.navigate();
@@ -82,14 +82,14 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
       const save = useAction(async () => {
         await forkedMovie.save();
         this.merge(forkedMovie);
-        this.HomePage.navigate();
+        this.ItemPage.navigate();
       });
 
       return (
         <>
           <forkedMovie.Form onSubmit={save} />
           <p>
-            ‹ <this.HomePage.Link>Back</this.HomePage.Link>
+            ‹ <this.ItemPage.Link>Back</this.ItemPage.Link>
           </p>
         </>
       );
@@ -124,7 +124,7 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
             <ul>
               {movies.map((movie) => (
                 <li key={movie.id}>
-                  <movie.HomePage.Link>{movie.title}</movie.HomePage.Link>
+                  <movie.ItemPage.Link>{movie.title}</movie.ItemPage.Link>
                   {movie.year !== undefined ? ` (${movie.year})` : ''}
                 </li>
               ))}
