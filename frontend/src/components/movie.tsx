@@ -23,11 +23,7 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
             <h2>Movie</h2>
             {children()}
           </>
-        ),
-
-        [], // Getter deps
-
-        [children] // Renderer deps
+        )
       );
     }
 
