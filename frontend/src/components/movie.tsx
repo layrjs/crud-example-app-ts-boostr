@@ -21,6 +21,7 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
         () => (
           <>
             <h2>Movie</h2>
+
             {children()}
           </>
         )
@@ -51,6 +52,7 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
               </tr>
             </tbody>
           </table>
+
           <p>
             <button
               onClick={() => {
@@ -62,6 +64,7 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
             &nbsp;
             <button onClick={deleteMovie}>Delete</button>
           </p>
+
           <p>
             ‹{' '}
             <this.constructor.Application.HomePage.Link>
@@ -84,59 +87,11 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
       return (
         <>
           <forkedMovie.Form onSubmit={save} />
+
           <p>
             ‹ <this.ItemPage.Link>Back</this.ItemPage.Link>
           </p>
         </>
-      );
-    }
-
-    @page('[/]movies/add') static AddPage() {
-      const movie = useMemo(() => new this(), []);
-
-      const save = useAction(async () => {
-        await movie.save();
-        this.Application.HomePage.navigate();
-      });
-
-      return (
-        <>
-          <h2>Add movie</h2>
-          <movie.Form onSubmit={save} />
-          <p>
-            ‹ <this.Application.HomePage.Link>Back</this.Application.HomePage.Link>
-          </p>
-        </>
-      );
-    }
-
-    @view() static ListView() {
-      return useData(
-        async () =>
-          await this.find({}, {title: true, year: true}, {sort: {year: 'desc', title: 'asc'}}),
-
-        (movies) => (
-          <>
-            <ul>
-              {movies.map((movie) => (
-                <li key={movie.id}>
-                  <movie.ItemPage.Link>{movie.title}</movie.ItemPage.Link>
-                  {movie.year !== undefined ? ` (${movie.year})` : ''}
-                </li>
-              ))}
-            </ul>
-
-            <p>
-              <button
-                onClick={() => {
-                  this.AddPage.navigate();
-                }}
-              >
-                New
-              </button>
-            </p>
-          </>
-        )
       );
     }
 
@@ -162,6 +117,7 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
                   />
                 </td>
               </tr>
+
               <tr>
                 <td>Year:</td>
                 <td>
@@ -173,6 +129,7 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
                   />
                 </td>
               </tr>
+
               <tr>
                 <td>Country:</td>
                 <td>
@@ -186,6 +143,7 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
               </tr>
             </tbody>
           </table>
+
           <p>
             <button type="submit">Save</button>
           </p>
