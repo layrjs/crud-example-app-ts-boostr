@@ -25,16 +25,6 @@ export default ({application, services}) => ({
     development: {
       url: 'http://localhost:16287/',
       platform: 'local'
-    },
-    production: {
-      url: 'https://crud-example-app.layrjs.com/',
-      platform: 'aws',
-      aws: {
-        region: 'us-west-2',
-        cloudFront: {
-          priceClass: 'PriceClass_100'
-        }
-      }
     }
   }
 });
