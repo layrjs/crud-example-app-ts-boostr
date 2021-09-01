@@ -6,7 +6,7 @@ import {layout, page, view, useData, useAction} from '@layr/react-integration';
 import type {Movie as BackendMovie} from '../../../backend/src/components/movie';
 import type {Application} from './application';
 
-export const createMovieComponent = (Base: typeof BackendMovie) => {
+export const extendMovie = (Base: typeof BackendMovie) => {
   class Movie extends Routable(Base) {
     ['constructor']!: typeof Movie;
 
@@ -155,6 +155,6 @@ export const createMovieComponent = (Base: typeof BackendMovie) => {
   return Movie;
 };
 
-export declare const Movie: ReturnType<typeof createMovieComponent>;
+export declare const Movie: ReturnType<typeof extendMovie>;
 
 export type Movie = InstanceType<typeof Movie>;

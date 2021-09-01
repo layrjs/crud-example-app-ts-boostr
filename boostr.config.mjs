@@ -9,5 +9,13 @@ export default () => ({
     frontend: './frontend',
     backend: './backend',
     database: './database'
+  },
+
+  stages: {
+    production: {
+      environment: {
+        NODE_ENV: 'production'
+      }
+    }
   }
 });

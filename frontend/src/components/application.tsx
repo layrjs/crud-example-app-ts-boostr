@@ -4,13 +4,13 @@ import React, {Fragment, useMemo} from 'react';
 import {layout, page, useData, useAction} from '@layr/react-integration';
 
 import type {Application as BackendApplication} from '../../../backend/src/components/application';
-import {createMovieComponent} from './movie';
+import {extendMovie} from './movie';
 
-export const createApplicationComponent = (Base: typeof BackendApplication) => {
+export const extendApplication = (Base: typeof BackendApplication) => {
   class Application extends Routable(Base) {
     ['constructor']!: typeof Application;
 
-    @provide() static Movie = createMovieComponent(Base.Movie);
+    @provide() static Movie = extendMovie(Base.Movie);
 
     @layout('/') static MainLayout({children}: {children: () => any}) {
       return (
@@ -95,6 +95,6 @@ export const createApplicationComponent = (Base: typeof BackendApplication) => {
   return Application;
 };
 
-export declare const Application: ReturnType<typeof createApplicationComponent>;
+export declare const Application: ReturnType<typeof extendApplication>;
 
 export type Application = InstanceType<typeof Application>;
