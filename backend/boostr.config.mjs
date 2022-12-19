@@ -7,6 +7,8 @@ export default ({services}) => ({
     DATABASE_URL: services.database.url
   },
 
+  rootComponent: './src/index.ts',
+
   stages: {
     development: {
       url: 'http://localhost:16288/',
