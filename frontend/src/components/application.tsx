@@ -16,7 +16,7 @@ export const extendApplication = (Base: typeof BackendApplication) => {
       return (
         <>
           <this.HomePage.Link>
-            <h1>CRUD example app</h1>
+            <h1>{process.env.APPLICATION_NAME}</h1>
           </this.HomePage.Link>
 
           {children()}
