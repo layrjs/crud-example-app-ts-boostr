@@ -8,7 +8,7 @@ import {extendMovie} from './movie';
 
 export const extendApplication = (Base: typeof BackendApplication) => {
   class Application extends Routable(Base) {
-    ['constructor']!: typeof Application;
+    declare ['constructor']: typeof Application;
 
     @provide() static Movie = extendMovie(Base.Movie);
 
